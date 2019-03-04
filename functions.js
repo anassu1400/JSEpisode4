@@ -6,7 +6,8 @@
  * - returns undefined if no matching book is found
  ****************************************************************/
 function getBookById(bookId, books) {
-  // Your code goes here
+    // Your code goes here
+    return books.find(book => book.id === bookId);
 }
 
 /**************************************************************
@@ -17,7 +18,8 @@ function getBookById(bookId, books) {
  * - returns undefined if no matching author is found
  ****************************************************************/
 function getAuthorByName(authorName, authors) {
-  // Your code goes here
+    // Your code goes here
+    return authors.find(author => author.name.toLowerCase() === authorName.toLowerCase());
 }
 
 /**************************************************************
@@ -27,7 +29,8 @@ function getAuthorByName(authorName, authors) {
  *    [{ author: <NAME>, bookCount: <NUMBER_OF_BOOKS> }]
  ****************************************************************/
 function bookCountsByAuthor(authors) {
-  // Your code goes here
+    // Your code goes here
+    return authors.map(author => { return { author: author.name, bookCount: author.books.length }; });
 }
 
 /**************************************************************
@@ -38,11 +41,16 @@ function bookCountsByAuthor(authors) {
  *    { <COLOR>: [<BOOK_TITLES>] }
  ****************************************************************/
 function booksByColor(books) {
-  const colors = {};
+    const colors = {};
+    books.forEach(book => {
+        if (colors[book.color]) {
+            colors[book.color].push(book.title);
+        } else {
+            colors[book.color] = [book.title];
+        }
+    });
 
-  // Your code goes here
-
-  return colors;
+    return colors;
 }
 
 /**************************************************************
@@ -54,7 +62,9 @@ function booksByColor(books) {
  *    ["The Hitchhikers Guide", "The Meaning of Liff"]
  ****************************************************************/
 function titlesByAuthorName(authorName, authors, books) {
-  // Your code goes here
+    // Your code goes here
+    return books.filter(book => book.authors[0].name.toLowerCase() === authorName.toLowerCase())
+        .map(book => book.title);
 }
 
 /**************************************************************
@@ -65,7 +75,7 @@ function titlesByAuthorName(authorName, authors, books) {
  * Note: assume there will never be a tie
  ****************************************************************/
 function mostProlificAuthor(authors) {
-  // Your code goes here
+    return bookCountsByAuthor(authors).find(author => author.bookCount === Math.max(...bookCountsByAuthor(authors).map(obj => obj.bookCount))).author;
 }
 
 /**************************************************************
@@ -92,7 +102,11 @@ function mostProlificAuthor(authors) {
  * BONUS: REMOVE DUPLICATE BOOKS
  ****************************************************************/
 function relatedBooks(bookId, authors, books) {
-  // Your code goes here
+    let result = [];
+    getBookById(bookId, books).authors.forEach(auth => {
+        result = result.concat(titlesByAuthorName(auth.name, authors, books));
+    });
+    return result;
 }
 
 /**************************************************************
@@ -102,18 +116,29 @@ function relatedBooks(bookId, authors, books) {
  *   co-authored the greatest number of books
  ****************************************************************/
 function friendliestAuthor(authors) {
-  // Your code goes here
+    return authors.forEach(author => {
+        author.co_authored = 0;
+        authors.forEach(second => {
+            if (author.name !== second.name) {
+                const shared = second.books.filter(book =>
+                    author.books.includes(book)
+                );
+                author.co_authored += shared.length;
+            }
+        });
+
+    });
 }
 
 module.exports = {
-  getBookById,
-  getAuthorByName,
-  bookCountsByAuthor,
-  booksByColor,
-  titlesByAuthorName,
-  mostProlificAuthor,
-  relatedBooks,
-  friendliestAuthor
+    getBookById,
+    getAuthorByName,
+    bookCountsByAuthor,
+    booksByColor,
+    titlesByAuthorName,
+    mostProlificAuthor,
+    relatedBooks,
+    friendliestAuthor
 };
 
 /**
